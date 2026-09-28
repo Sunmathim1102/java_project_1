@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillMatrix — Employee Skill Matrix & Staffing Recommender</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --card-border: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            padding: 24px;
+            line-height: 1.5;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+        h1 { font-size: 1.5rem; font-weight: 700; color: #fff; }
+        .badge {
+            background: rgba(79, 70, 229, 0.2);
+            color: #818cf8;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .nav-links a {
+            color: #818cf8;
+            text-decoration: none;
+            margin-left: 16px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: #a5b4fc; text-decoration: underline; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+        .card h2 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 14px;
+            color: #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: background 0.2s;
+        }
+        .btn:hover { background: var(--primary-hover); }
+        .btn-danger { background: var(--danger); }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-sm { padding: 4px 10px; font-size: 0.75rem; }
+        select, input {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid var(--card-border);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+        th, td {
+            text-align: left;
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--card-border);
+        }
+        th { color: var(--text-muted); font-weight: 600; }
+        .pill {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .pill-success { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .pill-warning { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .pill-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+        .progress-bar {
+            background: #334155;
+            border-radius: 9999px;
+            height: 6px;
+            width: 100%;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+        .progress-fill {
+            background: var(--primary);
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        .result-box {
+            background: #090d16;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            max-height: 220px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            color: #cbd5e1;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <h1>SkillMatrix <span class="badge">Monolithic Spring Boot & MySQL</span></h1>
+            <p style="color: var(--text-muted); font-size: 0.875rem;">Employee Skill Matrix & Intelligent Project Staffing Recommender</p>
+        </div>
+        <div class="nav-links">
+            <a href="/swagger-ui.html" target="_blank">📖 Swagger UI</a>
+            <a href="/api-docs" target="_blank">📄 OpenAPI JSON</a>
+        </div>
+    </header>
+
+    <div class="grid">
+        <!-- 1. Recommendation Engine -->
+        <div class="card" style="grid-column: span 2;">
+            <h2>
+                <span>🎯 Project Staffing Recommender (Ranked Matching)</span>
+                <button class="btn btn-sm" onclick="fetchRecommendations()">Get Recommendations</button>
+            </h2>
+            <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+                <select id="recProjectSelect" style="flex: 2;" onchange="fetchRecommendations()">
+                    <option value="1">Project 1: Banking Application (Java, Spring Boot, MySQL, REST API)</option>
+                    <option value="2">Project 2: E-Commerce Web Portal (React, JS, Spring Boot, MySQL)</option>
+                    <option value="3">Project 3: Cloud Analytics Pipeline (Python, MySQL, Git)</option>
+                </select>
+            </div>
+            <div id="recResults">Loading recommendations...</div>
+        </div>
+
+        <!-- 2. Team Skill Coverage & Gap Analysis -->
+        <div class="card" style="grid-column: span 2;">
+            <h2>
+                <span>📊 Team Skill Coverage & Gap Analysis</span>
+                <button class="btn btn-sm" onclick="fetchSkillCoverage()">Analyze Coverage</button>
+            </h2>
+            <div id="coverageResults">Loading skill coverage...</div>
+        </div>
+
+        <!-- 3. Capacity & Allocation Tester -->
+        <div class="card">
+            <h2>
+                <span>⚡ Capacity Rule Verification</span>
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 12px;">
+                Test business rule: <code>SUM(allocations) &lt;= 100%</code>. Employee 1 (John) already has 60% allocated (40% available).
+            </p>
+            <label style="font-size: 0.8rem; color: var(--text-muted);">Select Employee:</label>
+            <select id="allocEmpSelect">
+                <option value="1">John Doe (Allocated: 60%, Available: 40%)</option>
+                <option value="2">Alice Smith (Allocated: 25%, Available: 75%)</option>
+                <option value="3">Bob Johnson (Allocated: 0%, Available: 100%)</option>
+            </select>
+            <label style="font-size: 0.8rem; color: var(--text-muted);">Allocation Percentage (%):</label>
+            <input type="number" id="allocPercentage" value="50" min="1" max="100" placeholder="e.g. 50">
+            <button class="btn" style="width: 100%;" onclick="testAllocation()">Test Allocate (50% should fail for John)</button>
+            <div id="allocResult" style="margin-top: 12px;" class="result-box">Ready to test allocation.</div>
+        </div>
+
+        <!-- 4. Quick API Overview -->
+        <div class="card">
+            <h2><span>🚀 Core System APIs</span></h2>
+            <ul style="list-style: none; font-size: 0.85rem; color: #cbd5e1; display: flex; flex-direction: column; gap: 8px;">
+                <li><span class="pill pill-success">GET</span> <code>/api/projects/1/recommendations</code> - Ranked matching</li>
+                <li><span class="pill pill-success">GET</span> <code>/api/projects/1/skill-coverage</code> - Gap analysis</li>
+                <li><span class="pill pill-warning">POST</span> <code>/api/allocations</code> - Allocation with capacity check</li>
+                <li><span class="pill pill-success">GET</span> <code>/api/employees/1/availability</code> - Employee capacity breakdown</li>
+                <li><span class="pill pill-success">GET</span> <code>/api/employees</code> - Employee Skill Matrix CRUD</li>
+                <li><span class="pill pill-success">GET</span> <code>/api/skills</code> - Skills Catalog</li>
+                <li><span class="pill pill-success">GET</span> <code>/api/projects</code> - Projects & Requirements</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        async function fetchRecommendations() {
+            const projectId = document.getElementById('recProjectSelect').value;
+            const container = document.getElementById('recResults');
+            container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem;">Scoring candidates...</div>';
+            try {
+                const res = await fetch(`/api/projects/${projectId}/recommendations`);
+                const data = await res.json();
+                if (!data.length) {
+                    container.innerHTML = '<p>No candidates found.</p>';
+                    return;
+                }
+                let html = '<table><thead><tr><th>Rank</th><th>Candidate</th><th>Overall Score</th><th>Skill Match</th><th>Avg Matched Prof.</th><th>Available Cap.</th><th>Reason</th></tr></thead><tbody>';
+                data.forEach((r, idx) => {
+                    const rankBadge = idx === 0 ? '🥇 #1' : idx === 1 ? '🥈 #2' : idx === 2 ? '🥉 #3' : `#${idx+1}`;
+                    html += `<tr>
+                        <td><strong>${rankBadge}</strong></td>
+                        <td><strong>${r.employeeName}</strong><br><small style="color:var(--text-muted);">${r.designation}</small></td>
+                        <td><span class="pill ${r.overallMatchScore >= 70 ? 'pill-success' : r.overallMatchScore >= 40 ? 'pill-warning' : 'pill-danger'}">${r.overallMatchScore}%</span></td>
+                        <td>${r.skillMatchPercentage}%</td>
+                        <td>Level ${r.averageMatchedProficiency}</td>
+                        <td>${r.availableCapacity}%</td>
+                        <td style="font-size:0.75rem; color:#cbd5e1;">${r.recommendationReason}</td>
+                    </tr>`;
+                });
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            } catch (err) {
+                container.innerHTML = `<div style="color:var(--danger)">Error: ${err.message}</div>`;
+            }
+        }
+
+        async function fetchSkillCoverage() {
+            const projectId = document.getElementById('recProjectSelect').value;
+            const container = document.getElementById('coverageResults');
+            container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem;">Calculating coverage...</div>';
+            try {
+                const res = await fetch(`/api/projects/${projectId}/skill-coverage`);
+                const data = await res.json();
+                let html = `<div style="margin-bottom: 8px; font-size: 0.85rem;">
+                    <strong>Overall Coverage:</strong> ${data.overallCoveragePercentage}% (${data.fullyCoveredSkills}/${data.totalRequiredSkills} skills covered)
+                </div>`;
+                html += '<table><thead><tr><th>Skill</th><th>Required Level</th><th>Staff with Skill</th><th>Meeting Req.</th><th>Highest Level</th><th>Available Cap.</th><th>Status</th></tr></thead><tbody>';
+                data.skillCoverageDetails.forEach(s => {
+                    const statusPill = s.coverageStatus === 'AVAILABLE' ? 'pill-success' : s.coverageStatus === 'PARTIAL' ? 'pill-warning' : 'pill-danger';
+                    html += `<tr>
+                        <td><strong>${s.skillName}</strong> <small style="color:var(--text-muted)">(${s.category})</small></td>
+                        <td>Level ${s.requiredProficiency} (${s.requiredProficiencyLabel})</td>
+                        <td>${s.employeesWithSkill}</td>
+                        <td><strong>${s.employeesMeetingRequirement}</strong></td>
+                        <td>${s.highestAvailableProficiencyLabel}</td>
+                        <td>${s.totalAvailableCapacity}%</td>
+                        <td><span class="pill ${statusPill}">${s.coverageStatus}</span></td>
+                    </tr>`;
+                });
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            } catch (err) {
+                container.innerHTML = `<div style="color:var(--danger)">Error: ${err.message}</div>`;
+            }
+        }
+
+        async function testAllocation() {
+            const empId = document.getElementById('allocEmpSelect').value;
+            const pct = parseInt(document.getElementById('allocPercentage').value);
+            const projectId = document.getElementById('recProjectSelect').value;
+            const out = document.getElementById('allocResult');
+            out.innerText = 'Sending allocation request...';
+
+            try {
+                const res = await fetch('/api/allocations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        employeeId: parseInt(empId),
+                        projectId: parseInt(projectId),
+                        allocationPercentage: pct,
+                        status: 'ACTIVE'
+                    })
+                });
+                const body = await res.json();
+                out.innerText = `HTTP ${res.status} ${res.statusText}\n` + JSON.stringify(body, null, 2);
+                fetchRecommendations();
+                fetchSkillCoverage();
+            } catch (err) {
+                out.innerText = `Error: ${err.message}`;
+            }
+        }
+
+        window.onload = () => {
+            fetchRecommendations();
+            fetchSkillCoverage();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+-- SkillMatrix Sample Data Reference
+-- The system automatically populates all sample data (Employees, Skills, Projects, Proficiencies, Allocations)
+-- reliably upon application startup via DataInitializer.java.
